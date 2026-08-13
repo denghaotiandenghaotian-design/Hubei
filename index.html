@@ -1,2311 +1,327 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>湖北遴选复习工作台</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>湖北遴选 AI 复习系统</title>
+<script src="data.js"></script>
 <style>
-:root{--navy:#0f172a;--navy2:#1e293b;--gold:#e2a252;--blue:#2563eb;--red:#dc2626;--green:#16a34a;
---bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b;--chip:#eef2ff;}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-color:var(--txt);background:var(--bg);font-size:14px;line-height:1.6}
-/* 顶栏 */
-.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--navy);color:#fff;display:flex;
-align-items:center;gap:14px;padding:0 16px;z-index:50}
-.brand{display:flex;align-items:center;gap:8px;font-weight:700;white-space:nowrap}
-.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--gold)}
-.search{flex:1;max-width:520px;position:relative}
-.search input{width:100%;height:36px;border-radius:18px;border:none;padding:0 16px 0 38px;font-size:14px;background:#1e293b;color:#fff}
-.search input::placeholder{color:#94a3b8}
-.search svg{position:absolute;left:12px;top:9px}
-.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#0f172a;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer}
-.iconbtn{width:36px;height:36px;border-radius:8px;background:#1e293b;color:#cbd5e1;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
-.iconbtn:hover{background:#334155}
-.menu-pop{position:absolute;right:16px;top:52px;background:#fff;color:var(--txt);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.18);min-width:200px;display:none;overflow:hidden;z-index:60}
-.menu-pop.show{display:block}
-.menu-pop button{display:block;width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-size:13.5px;cursor:pointer}
-.menu-pop button:hover{background:var(--bg)}
-/* 三栏布局 */
-.layout{display:flex;margin-top:56px;height:calc(100vh - 56px)}
-.sidebar{width:218px;background:var(--navy2);color:#cbd5e1;flex-shrink:0;overflow-y:auto;padding:12px 0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer;font-size:14px;border-left:3px solid transparent}
-.nav-item:hover{background:#0f172a;color:#fff}
-.nav-item.active{background:#0f172a;color:#fff;border-left-color:var(--gold)}
-.nav-item svg{width:18px;height:18px;flex-shrink:0}
-.nav-sec{font-size:11px;color:#64748b;padding:14px 18px 4px;letter-spacing:1px}
-.main{flex:1;overflow-y:auto;padding:18px;min-width:0}
-.panel{width:330px;background:#fff;border-left:1px solid var(--line);flex-shrink:0;overflow-y:auto;padding:16px}
-/* 通用卡片/按钮 */
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
-.card h3{font-size:15px;margin-bottom:6px}
-.btn{border:none;border-radius:8px;padding:8px 14px;font-size:13.5px;cursor:pointer;background:var(--blue);color:#fff;font-weight:600}
-.btn:hover{filter:brightness(.95)}
-.btn.gold{background:var(--gold);color:#0f172a}
-.btn.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue)}
-.btn.danger{background:#fff;color:var(--red);border:1px solid var(--red)}
-.btn.sm{padding:5px 10px;font-size:12.5px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.chip{display:inline-block;background:var(--chip);color:var(--blue);border-radius:20px;padding:2px 10px;font-size:12px;margin:2px 4px 2px 0}
-.chip.gray{background:#f1f5f9;color:var(--mut)}
-.chip.red{background:#fee2e2;color:var(--red)}
-.chip.green{background:#dcfce7;color:var(--green)}
-.chip.gold{background:#fef3c7;color:#b45309}
-.mut{color:var(--mut);font-size:12.5px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.spread{display:flex;justify-content:space-between;align-items:center}
-/* 表格 */
-.tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:13.3px;vertical-align:top}
-.tbl th{background:#f8fafc;color:var(--mut);font-weight:600;cursor:pointer;user-select:none;white-space:nowrap}
-.tbl th:hover{color:var(--blue)}
-.tbl tr:hover{background:#f8fafc}
-.tbl tr.sel{background:#fff7ed}
-.tbl tbody tr{cursor:pointer}
-/* 工具栏 */
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.toolbar input,.toolbar select{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:13px;background:#fff}
-.toolbar input[type=text],.toolbar input[type=search]{min-width:160px}
-/* 模态 */
-.mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
-.mask.show{display:flex}
-.modal{background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:20px}
-.modal h2{font-size:17px;margin-bottom:14px}
-.field{margin-bottom:12px}
-.field label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px}
-.field label .req{color:var(--red);margin-left:2px}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff}
-.field textarea{min-height:90px;resize:vertical}
-.field .err{color:var(--red);font-size:12px;margin-top:4px;display:none}
-.field.bad input,.field.bad select,.field.bad textarea{border-color:var(--red)}
-.field.bad .err{display:block}
-/* toast */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center}
-.toast-item{background:var(--navy);color:#fff;padding:10px 18px;border-radius:24px;font-size:13.5px;box-shadow:0 6px 20px rgba(0,0,0,.2);animation:tin .25s}
-.toast-item.ok{background:var(--green)}
-.toast-item.err{background:var(--red)}
-@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
-/* 分页 */
-.pager{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:13px}
-.pager button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer}
-.pager button.cur{background:var(--blue);color:#fff;border-color:var(--blue)}
-.pager button:disabled{opacity:.4;cursor:not-allowed}
-.empty{text-align:center;color:var(--mut);padding:40px}
-/* 移动端菜单按钮 */
-.hamburger{display:none;background:none;border:none;color:#fff;cursor:pointer}
-@media(max-width:1080px){.panel{display:none}}
-@media(max-width:860px){
-  .hamburger{display:flex}
-  .sidebar{position:fixed;left:-240px;top:56px;bottom:0;z-index:80;transition:left .2s}
-  .sidebar.open{left:0}
-  .main{padding:12px}
-  .toolbar input[type=text]{min-width:120px;flex:1}
-}
+:root{--bg:#081020;--panel:#0e1a2e;--panel2:#0b1524;--card:#101d33;--line:rgba(226,162,82,.25);--line2:rgba(151,175,214,.14);--gold:#e2a252;--gold2:#f0c182;--golddim:rgba(226,162,82,.10);--txt:#dbe4f2;--txt2:#9fb2cf;--txt3:#6f83a5;--red:#e2635b;--green:#6fbf8f;--blue:#8fb4e8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);background-image:radial-gradient(1000px 420px at 50% -120px,rgba(226,162,82,.07),transparent 60%);color:var(--txt);font-family:"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.8;font-size:15px;min-height:100vh;}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px 90px;}
+header.app{position:sticky;top:0;z-index:50;background:rgba(8,16,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+header .in{max-width:980px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.logo{font-weight:800;color:var(--gold2);font-size:17px;letter-spacing:.03em;white-space:nowrap;}
+.logo small{display:block;font-size:10px;color:var(--txt3);letter-spacing:.2em;font-weight:400;}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+nav.tabs button{background:transparent;border:1px solid transparent;color:var(--txt2);padding:7px 13px;border-radius:9px;font-size:13px;cursor:pointer;font-family:inherit;transition:.18s;}
+nav.tabs button:hover{color:var(--gold2);background:var(--golddim);}
+nav.tabs button.on{color:var(--gold);border-color:var(--line);background:var(--golddim);font-weight:600;}
+main{animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.page{display:none;}
+.page.on{display:block;}
+h1.pt{font-size:24px;margin:26px 0 4px;color:var(--gold2);}
+p.pd{color:var(--txt3);font-size:13px;margin-bottom:18px;}
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px 18px;}
+.card h3{font-size:15px;color:var(--gold2);margin-bottom:8px;}
+.card .num{font-size:28px;font-weight:800;color:var(--txt);}
+.card .lbl{font-size:12px;color:var(--txt3);}
+.btn{display:inline-block;background:linear-gradient(135deg,var(--gold),#c98a3d);color:#0b1524;border:none;border-radius:9px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.18s;}
+.btn:hover{filter:brightness(1.1);}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--gold);font-weight:500;}
+.btn.danger{background:transparent;border:1px solid rgba(226,99,91,.5);color:var(--red);}
+.btn.sm{padding:5px 12px;font-size:12.5px;border-radius:7px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.chip{display:inline-block;font-size:11px;color:var(--gold);border:1px solid var(--line);background:rgba(226,162,82,.06);border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.chip.blue{color:var(--blue);border-color:rgba(143,180,232,.35);background:rgba(143,180,232,.07);}
+.chip.red{color:var(--red);border-color:rgba(226,99,91,.4);background:rgba(226,99,91,.07);}
+.chip.green{color:var(--green);border-color:rgba(111,191,143,.4);background:rgba(111,191,143,.07);}
+.chip.gray{color:var(--txt2);border-color:var(--line2);background:transparent;}
+.box{border:1px solid var(--line2);border-radius:12px;padding:14px 16px;margin:10px 0;background:var(--panel2);}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:11px 14px;margin:8px 0;color:var(--txt);font-size:14px;cursor:pointer;font-family:inherit;transition:.15s;}
+.opt:hover{border-color:var(--gold);}
+.opt.correct{border-color:var(--green);background:rgba(111,191,143,.12);}
+.opt.wrong{border-color:var(--red);background:rgba(226,99,91,.12);}
+textarea{width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;color:var(--txt);padding:12px;font-family:inherit;font-size:14px;line-height:1.7;resize:vertical;min-height:90px;}
+textarea:focus{outline:none;border-color:var(--gold);}
+input[type=date],input[type=number],input[type=text],select{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;color:var(--txt);padding:8px 12px;font-family:inherit;font-size:14px;}
+input:focus,select:focus{outline:none;border-color:var(--gold);}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+th{background:rgba(226,162,82,.12);color:var(--gold2);text-align:left;padding:8px 10px;border:1px solid var(--line);font-weight:600;}
+td{padding:8px 10px;border:1px solid var(--line2);vertical-align:top;}
+.mut{color:var(--txt3);font-size:12.5px;}
+.tip{font-size:12.5px;color:var(--txt2);background:var(--golddim);border:1px solid var(--line);border-radius:9px;padding:8px 12px;margin:8px 0;}
+.clock{font-family:Consolas,monospace;font-size:22px;color:var(--gold2);font-weight:700;}
+hr.sep{border:none;border-top:1px dashed var(--line);margin:16px 0;}
+@media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <button class="hamburger iconbtn" onclick="App.toggleNav()" aria-label="菜单">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-  </button>
-  <div class="brand"><span class="dot"></span>湖北遴选复习工作台</div>
-  <div class="search">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-    <input id="globalSearch" placeholder="全局搜索：考点 / 金句 / 试卷 / 错题…" oninput="App.search(this.value)">
-  </div>
-  <div class="top-actions">
-    <button class="iconbtn" onclick="App.openUserMenu()" aria-label="用户">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#cbd5e1" stroke-width="2"><path d="M12 15a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-    </button>
-    <div class="avatar" onclick="App.openUserMenu()">考</div>
-    <div class="menu-pop" id="userMenu">
-      <button onclick="App.exportAll()">导出全部数据(JSON)</button>
-      <button onclick="App.importAll()">导入恢复(JSON)</button>
-      <button onclick="App.resetDemo()">重置为示例数据</button>
-      <button onclick="App.clearAll()">清空全部数据</button>
+<div class="wrap">
+<header class="app"><div class="in">
+  <div class="logo">湖北遴选 AI 复习系统<small>GONGXUAN · HUBEI</small></div>
+  <nav class="tabs">
+    <button data-pg="dash" class="on">仪表盘</button>
+    <button data-pg="kb">考点库</button>
+    <button data-pg="quiz">智能刷题</button>
+    <button data-pg="exam">模拟考试</button>
+    <button data-pg="err">错题本</button>
+    <button data-pg="card">背诵卡</button>
+    <button data-pg="plan">复习计划</button>
+    <button data-pg="mind">思维导图</button>
+    <button data-pg="topics">省情专题</button>
+    <button data-pg="jin">金句</button>
+  </nav>
+</div></header>
+<main>
+
+<!-- ════ 仪表盘 ════ -->
+<section class="page on" id="pg-dash">
+  <h1 class="pt">学习仪表盘</h1>
+  <p class="pd" id="dash-date"></p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>复习档案</h3>
+      <div class="box" style="margin-top:4px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;">
+          <div><div class="mut">报考层级</div><select id="pf-level"><option>省直</option><option>市直</option><option>州直</option></select></div>
+          <div><div class="mut">目标职位</div><input type="text" id="pf-post" placeholder="如：省委办公厅综合岗" style="width:150px"></div>
+          <div><div class="mut">笔试日期</div><input type="date" id="pf-date"></div>
+          <div><div class="mut">每日可用（小时）</div><input type="number" id="pf-hours" min="1" max="12" value="2" style="width:80px"></div>
+          <div><button class="btn sm" onclick="saveProfile()">保存档案</button></div>
+        </div>
+      </div>
+      <div class="tip" id="dash-countdown">设置笔试日期后显示倒计时。</div>
+    </div>
+    <div class="card">
+      <h3>今日任务</h3>
+      <div id="dash-today" class="box">加载中…</div>
     </div>
   </div>
+  <div class="grid g4" style="margin-top:14px;">
+    <div class="card"><div class="num" id="st-quiz">0</div><div class="lbl">已刷题数</div></div>
+    <div class="card"><div class="num" id="st-acc">--</div><div class="lbl">客观题正确率</div></div>
+    <div class="card"><div class="num" id="st-err">0</div><div class="lbl">错题本</div></div>
+    <div class="card"><div class="num" id="st-days">0</div><div class="lbl">背诵连续天数</div></div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <h3>学习记录 <span class="mut">（最近 10 次作答）</span></h3>
+    <table><thead><tr><th>时间</th><th>类型</th><th>内容</th><th>结果</th></tr></thead><tbody id="dash-log"></tbody></table>
+  </div>
+  <div class="card" style="margin-top:14px;border-color:var(--gold);">
+    <h3>💾 数据备份与恢复 <span class="mut">（推荐存到 D:\考试 文件夹）</span></h3>
+    <div class="tip">学习数据（错题本/背诵进度/自定义考点与金句/打卡记录）默认存于本浏览器。为防止更换浏览器或清理缓存丢失，建议定期备份。</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+      <button class="btn sm" onclick="exportBackup()">⬇ 导出备份文件</button>
+      <label class="btn sm ghost" style="cursor:pointer;">⬆ 导入备份文件<input type="file" accept=".json,.txt" style="display:none" onchange="importBackup(this.files[0])"></label>
+      <button class="btn sm ghost" onclick="connectBackupDir()">📁 连接文件夹自动备份</button>
+      <button class="btn sm ghost" onclick="disconnectBackupDir()">断开</button>
+      <span class="mut" id="backup-status">未连接</span>
+    </div>
+    <div class="mut" style="margin-top:8px;font-size:12px;">连接文件夹后，每次数据变动自动写入该目录「湖北遴选学习数据备份.json」。推荐浏览器：Chrome / Edge。</div>
+  </div>
+</section>
+
+<!-- ════ 考点库 ════ -->
+<section class="page" id="pg-kb">
+  <h1 class="pt">考点库</h1>
+  <p class="pd">六大知识域 · 源自三卷模考真题主题。点击领域查看考点，点击考点卡片可加入背诵。支持自行添加自定义考点。</p>
+  <div class="card" style="margin-bottom:14px;">
+    <button class="btn sm" onclick="var p=document.getElementById('kb-add');p.style.display=p.style.display==='none'?'block':'none';">＋ 添加自定义考点</button>
+    <div id="kb-add" style="display:none;margin-top:12px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <select id="kb-add-cat" style="min-width:120px;"><option>政治理论</option><option>政策法规</option><option>公文写作</option><option>机关实务</option><option>时政热点</option><option>综合写作</option></select>
+        <input type="text" id="kb-add-name" placeholder="考点名称（必填）" style="flex:2;min-width:160px;">
+        <select id="kb-add-freq"><option>高</option><option>中</option><option>低</option></select>
+      </div>
+      <textarea id="kb-add-note" placeholder="考点要点/说明（选填，如：考查角度、关键词、一句话记忆）" style="margin-top:8px;min-height:60px;"></textarea>
+      <div style="margin-top:8px;display:flex;gap:10px;">
+        <button class="btn sm" onclick="addCustomKB()">保存考点</button>
+        <button class="btn sm ghost" onclick="document.getElementById('kb-add').style.display='none'">取消</button>
+      </div>
+    </div>
+  </div>
+  <div class="grid g2" id="kb-list"></div>
+</section>
+
+<!-- ════ 智能刷题 ════ -->
+<section class="page" id="pg-quiz">
+  <h1 class="pt">智能刷题</h1>
+  <p class="pd">客观题逐题作答即时解析；主观题先写思路再对照参考采分点，自评后错题自动进错题本。</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>模式</h3>
+      <button class="btn sm" id="qz-mode-mc" onclick="setQuizMode('mc')">客观题（20 道）</button>
+      <button class="btn sm ghost" id="qz-mode-sub" onclick="setQuizMode('sub')">主观题（12 道真题）</button>
+      <div style="margin-top:8px;"><span class="chip blue" id="qz-filter-chips"></span></div>
+      <div style="margin-top:8px;" id="qz-domain-filter"></div>
+    </div>
+    <div class="card">
+      <h3>进度</h3>
+      <div id="qz-progress">未开始</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;" id="qz-stage"></div>
+</section>
+
+<!-- ════ 模拟考试 ════ -->
+<section class="page" id="pg-exam">
+  <h1 class="pt">模拟考试</h1>
+  <p class="pd">按卷全真组卷：3 卷共 12 道主观题，参考 180 分钟限时。作答后对照参考思路自评，自动计分并回写错题本。</p>
+  <div class="card" id="ex-setup">
+    <h3>选择试卷</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;" id="ex-papers"></div>
+    <div class="tip">限时 180 分钟，超时自动收卷；支持中途保存退出。</div>
+    <button class="btn" onclick="startExam()">开始考试</button>
+    <button class="btn ghost" onclick="loadSavedExam()">恢复上次进度</button>
+  </div>
+  <div class="card" id="ex-run" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <h3 id="ex-title"></h3>
+      <span class="clock" id="ex-clock">03:00:00</span>
+    </div>
+    <div id="ex-body"></div>
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn" onclick="submitExam()">交卷并自评</button>
+      <button class="btn ghost" onclick="saveExamProgress()">保存进度</button>
+      <button class="btn danger" onclick="abortExam()">放弃本次</button>
+    </div>
+  </div>
+  <div class="card" id="ex-result" style="display:none;"></div>
+</section>
+
+
+<!-- ════ 错题本 ════ -->
+<section class="page" id="pg-err">
+  <h1 class="pt">错题本</h1>
+  <p class="pd">按遗忘曲线提示复习：错后 1/3/7/15/30 天。已掌握需经变式验证（重做同类题）后降频。</p>
+  <div style="margin-bottom:10px;">
+    <button class="chip" onclick="errFilter('all')">全部</button>
+    <button class="chip" onclick="errFilter('客观题')">客观题</button>
+    <button class="chip" onclick="errFilter('主观题')">主观题</button>
+    <button class="chip" onclick="errFilter('due')">今日待复习</button>
+  </div>
+  <div id="err-list"></div>
+</section>
+
+<!-- ════ 背诵卡 ════ -->
+<section class="page" id="pg-card">
+  <h1 class="pt">背诵打卡</h1>
+  <p class="pd">高频考点记忆卡 · 先回忆后翻面 · 记忆等级越高复习间隔越长。</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>卡片池</h3>
+      <div class="num" id="cd-total">0</div><div class="lbl">张卡片</div>
+      <div style="margin-top:10px;"><span class="chip green" id="cd-due-cnt">今日待背 0</span></div>
+      <div style="margin-top:10px;"><button class="btn" onclick="nextCard(true)">开始今日背诵</button>
+      <button class="btn ghost" onclick="exportCards()">导出背诵清单</button></div>
+    </div>
+    <div class="card">
+      <h3>打卡状态</h3>
+      <div id="cd-status" class="box">—</div>
+      <button class="btn sm" onclick="checkin()" style="margin-top:8px;">今日打卡</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;" id="cd-stage">
+    <div class="mut">点击「开始今日背诵」开始</div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <h3>自定义卡片</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="cd-new-q" placeholder="正面（问题/关键词）" style="flex:2;min-width:200px;">
+      <input type="text" id="cd-new-a" placeholder="背面（答案/要点）" style="flex:2;min-width:200px;">
+      <button class="btn sm" onclick="addCard()">添加</button>
+    </div>
+    <div class="mut" style="margin-top:6px;">提示：在考点库点击考点卡片、在错题本点击「转为背诵卡」也会自动加入。</div>
+  </div>
+</section>
+
+<!-- ════ 复习计划 ════ -->
+<section class="page" id="pg-plan">
+  <h1 class="pt">复习计划</h1>
+  <p class="pd">以笔试日期倒推阶段，结合你的错题短板与背诵任务生成每日清单。</p>
+  <div class="grid g2">
+    <div class="card" id="plan-stage"></div>
+    <div class="card"><h3>今日清单</h3><div id="plan-today" class="box">—</div></div>
+  </div>
+  <div class="card" style="margin-top:14px;"><h3>本周计划</h3><div id="plan-week"></div></div>
+</section>
+
+<!-- ════ 思维导图 ════ -->
+<section class="page" id="pg-mind">
+  <h1 class="pt">知识点思维导图</h1>
+  <p class="pd">六大领域知识树。搜索框输入关键词（如「政绩观」「消费」「文旅」）即时高亮定位；下方「节点一览」可将分支一键导入考点库。</p>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="mind-search" placeholder="输入关键词搜索节点，如：政绩观 / 消费 / 文旅 / 创新…" style="flex:1;min-width:220px;" oninput="mindSearch(this.value)">
+      <button class="btn sm ghost" onclick="mindSearch('')">清除</button>
+    </div>
+    <div class="tip" id="mind-hint">未搜索时显示全部节点；搜索时匹配节点金色高亮，其余淡出。</div>
+  </div>
+  <div id="mind-root"></div>
+  <div class="card" style="margin-top:16px;">
+    <h3>节点一览 <span class="chip gray" id="mind-total"></span> <span class="mut">层级：L0 领域 → L1 考点 → L2 要点</span></h3>
+    <p class="mut" style="font-size:12.5px;">点击「导入」可将该节点加入考点库（科目标记为「理论」，自动去重，来源标注「思维导图导入」）。</p>
+    <div id="mind-nodes"></div>
+  </div>
+</section>
+
+<!-- ════ 省情专题 ════ -->
+<section class="page" id="pg-topics">
+  <h1 class="pt">省情专题 · 2026 湖北省政府工作报告</h1>
+  <p class="pd">依据 2026 年 1 月 27 日省长李殿勋所作《政府工作报告》提炼 8 大专题。每专题含省情背景 + 简答/论述/案例三类题 + 参考答案，支持一键导出 PDF（宋体、双线标题、A4 适配）。</p>
+  <div style="text-align:right;margin-bottom:12px;"><button class="btn" onclick="exportTopicsPDF()">📄 导出全部专题（PDF/打印）</button></div>
+  <div id="topics-list"></div>
+</section>
+
+<!-- ════ 金句 ════ -->
+<section class="page" id="pg-jin">
+  <h1 class="pt">金句库</h1>
+  <p class="pd">8 类高价值金句，写作论证弹药库。点击分类筛选，点击「复制」取用。支持自行添加自定义金句。</p>
+  <div class="card" style="margin-bottom:14px;">
+    <button class="btn sm" onclick="var p=document.getElementById('jin-add');p.style.display=p.style.display==='none'?'block':'none';">＋ 添加自定义金句</button>
+    <div id="jin-add" style="display:none;margin-top:12px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <select id="jin-add-cat" style="min-width:130px;"><option>实干担当</option><option>民生情怀</option><option>发展创新</option><option>生态文明</option><option>基层治理</option><option>党建政绩</option><option>湖北支点</option><option>经典用典</option><option>我的自定义</option></select>
+        <input type="text" id="jin-add-text" placeholder="金句内容（必填）" style="flex:2;min-width:200px;">
+        <input type="text" id="jin-add-src" placeholder="出处（选填）" style="flex:1;min-width:140px;">
+      </div>
+      <div style="margin-top:8px;display:flex;gap:10px;">
+        <button class="btn sm" onclick="addCustomJin()">保存金句</button>
+        <button class="btn sm ghost" onclick="document.getElementById('jin-add').style.display='none'">取消</button>
+      </div>
+    </div>
+  </div>
+  <div id="jin-cats" style="margin-bottom:12px;"></div>
+  <div id="jin-list"></div>
+</section>
+
+<!-- ════ 考点详解模态 ════ -->
+<div id="kb-modal" style="display:none;position:fixed;inset:0;background:rgba(8,16,32,.86);z-index:200;overflow:auto;">
+  <div style="max-width:860px;margin:36px auto;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:24px 28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <h2 id="kb-modal-title" style="color:#f0c182;font-size:19px;"></h2>
+      <div style="display:flex;gap:8px;">
+        <button class="btn sm" onclick="exportKbPDF()">📄 导出 PDF</button>
+        <button class="btn sm ghost" onclick="closeKbModal()">关闭</button>
+      </div>
+    </div>
+    <div id="kb-modal-body" style="margin-top:14px;"></div>
+  </div>
 </div>
-<div class="layout">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="main" id="main"></main>
-  <aside class="panel" id="panel"></aside>
-</div>
 
-<script>
-const MOCK = {
- "kb": [
-  {
-   "domain": "政治理论",
-   "name": "树立和践行正确政绩观",
-   "freq": "高",
-   "note": "2026 学习教育重点；政绩观是世界观、权力观、事业观的集中体现",
-   "exp": "【概念内涵】树立和践行正确政绩观：该考点是政治建设的重要遵循，体现立场、观点、方法的高度统一。 2026 学习教育重点；政绩观是世界观、权力观、事业观的集中体现。\n【要点解析】把握其时代背景、核心要义与实践要求，重点理解“为什么、是什么、怎么干”。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以论述题、案例分析题出现，需结合年度时政与湖北实践展开。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、再分层、后举例、扣省情。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“树立和践行正确政绩观”的基本内涵与主要内容。",
-     "a": "树立和践行正确政绩观是2026 学习教育重点；政绩观是世界观、权力观、事业观的集中体现。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述树立和践行正确政绩观的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把树立和践行正确政绩观融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“树立和践行正确政绩观”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb1"
-  },
-  {
-   "domain": "政治理论",
-   "name": "“两个确立”与“两个维护”",
-   "freq": "高",
-   "note": "政治建设的根本要求，决定性意义与践行路径",
-   "exp": "【概念内涵】“两个确立”与“两个维护”：该考点是政治建设的重要遵循，体现立场、观点、方法的高度统一。 政治建设的根本要求，决定性意义与践行路径。\n【要点解析】把握其时代背景、核心要义与实践要求，重点理解“为什么、是什么、怎么干”。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以论述题、案例分析题出现，需结合年度时政与湖北实践展开。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、再分层、后举例、扣省情。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述““两个确立”与“两个维护””的基本内涵与主要内容。",
-     "a": "“两个确立”与“两个维护”是政治建设的根本要求，决定性意义与践行路径。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述“两个确立”与“两个维护”的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把“两个确立”与“两个维护”融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进““两个确立”与“两个维护””相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb2"
-  },
-  {
-   "domain": "政治理论",
-   "name": "习近平新时代中国特色社会主义思想",
-   "freq": "高",
-   "note": "理论体系总纲，涵盖“十个明确”“十四个坚持”",
-   "exp": "【概念内涵】习近平新时代中国特色社会主义思想：该考点是政治建设的重要遵循，体现立场、观点、方法的高度统一。 理论体系总纲，涵盖“十个明确”“十四个坚持”。\n【要点解析】把握其时代背景、核心要义与实践要求，重点理解“为什么、是什么、怎么干”。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以论述题、案例分析题出现，需结合年度时政与湖北实践展开。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、再分层、后举例、扣省情。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“习近平新时代中国特色社会主义思想”的基本内涵与主要内容。",
-     "a": "习近平新时代中国特色社会主义思想是理论体系总纲，涵盖“十个明确”“十四个坚持”。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述习近平新时代中国特色社会主义思想的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把习近平新时代中国特色社会主义思想融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“习近平新时代中国特色社会主义思想”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb3"
-  },
-  {
-   "domain": "政治理论",
-   "name": "进一步全面深化改革",
-   "freq": "中",
-   "note": "三中全会部署；以经济体制改革为牵引",
-   "exp": "【概念内涵】进一步全面深化改革：该考点是政治建设的重要遵循，体现立场、观点、方法的高度统一。 三中全会部署；以经济体制改革为牵引。\n【要点解析】把握其时代背景、核心要义与实践要求，重点理解“为什么、是什么、怎么干”。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以论述题、案例分析题出现，需结合年度时政与湖北实践展开。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、再分层、后举例、扣省情。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“进一步全面深化改革”的基本内涵与主要内容。",
-     "a": "进一步全面深化改革是三中全会部署；以经济体制改革为牵引。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述进一步全面深化改革的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把进一步全面深化改革融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“进一步全面深化改革”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb4"
-  },
-  {
-   "domain": "省情热点",
-   "name": "2026 湖北省政府工作报告",
-   "freq": "高",
-   "note": "省情总纲：GDP 跨越 6 万亿、5.5% 增长目标",
-   "exp": "【概念内涵】2026 湖北省政府工作报告：紧扣 2026 湖北省政府工作报告与支点建设部署，是湖北卷的“母题”。 省情总纲：GDP 跨越 6 万亿、5.5% 增长目标。\n【要点解析】把握目标数据（GDP 6万亿、增长5.5%）、战略定位与重点工程。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、案例分析出现，须用湖北数据与案例支撑。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：目标+定位+工程+案例，四件套记牢。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“2026 湖北省政府工作报告”的基本内涵与主要内容。",
-     "a": "2026 湖北省政府工作报告是省情总纲：GDP 跨越 6 万亿、5.5% 增长目标。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述2026 湖北省政府工作报告的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把2026 湖北省政府工作报告融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“2026 湖北省政府工作报告”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb5"
-  },
-  {
-   "domain": "省情热点",
-   "name": "支点建设与中部崛起",
-   "freq": "高",
-   "note": "战略定位：打造重要战略支点",
-   "exp": "【概念内涵】支点建设与中部崛起：紧扣 2026 湖北省政府工作报告与支点建设部署，是湖北卷的“母题”。 战略定位：打造重要战略支点。\n【要点解析】把握目标数据（GDP 6万亿、增长5.5%）、战略定位与重点工程。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、案例分析出现，须用湖北数据与案例支撑。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：目标+定位+工程+案例，四件套记牢。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“支点建设与中部崛起”的基本内涵与主要内容。",
-     "a": "支点建设与中部崛起是战略定位：打造重要战略支点。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述支点建设与中部崛起的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把支点建设与中部崛起融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“支点建设与中部崛起”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb6"
-  },
-  {
-   "domain": "省情热点",
-   "name": "大力发展银发经济",
-   "freq": "中",
-   "note": "2026 新提法；适老消费与产业",
-   "exp": "【概念内涵】大力发展银发经济：紧扣 2026 湖北省政府工作报告与支点建设部署，是湖北卷的“母题”。 2026 新提法；适老消费与产业。\n【要点解析】把握目标数据（GDP 6万亿、增长5.5%）、战略定位与重点工程。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、案例分析出现，须用湖北数据与案例支撑。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：目标+定位+工程+案例，四件套记牢。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“大力发展银发经济”的基本内涵与主要内容。",
-     "a": "大力发展银发经济是2026 新提法；适老消费与产业。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述大力发展银发经济的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把大力发展银发经济融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“大力发展银发经济”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb7"
-  },
-  {
-   "domain": "省情热点",
-   "name": "世界知名文化旅游目的地",
-   "freq": "中",
-   "note": "文旅出圈；荆楚文化品牌",
-   "exp": "【概念内涵】世界知名文化旅游目的地：紧扣 2026 湖北省政府工作报告与支点建设部署，是湖北卷的“母题”。 文旅出圈；荆楚文化品牌。\n【要点解析】把握目标数据（GDP 6万亿、增长5.5%）、战略定位与重点工程。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、案例分析出现，须用湖北数据与案例支撑。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：目标+定位+工程+案例，四件套记牢。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“世界知名文化旅游目的地”的基本内涵与主要内容。",
-     "a": "世界知名文化旅游目的地是文旅出圈；荆楚文化品牌。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述世界知名文化旅游目的地的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把世界知名文化旅游目的地融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“世界知名文化旅游目的地”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb8"
-  },
-  {
-   "domain": "机关实务",
-   "name": "基层减负与为基层赋能",
-   "freq": "高",
-   "note": "反复考点；防止责任甩锅与痕迹主义",
-   "exp": "【概念内涵】基层减负与为基层赋能：机关运转的规矩与本领，直接对应实务处理题的评分要点。 反复考点；防止责任甩锅与痕迹主义。\n【要点解析】把握程序规范、权责边界、协同方法与服务意识。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以实务处理、案例分析出现，重程序合规与群众视角。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：定程序、明权责、强协同、守底线。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“基层减负与为基层赋能”的基本内涵与主要内容。",
-     "a": "基层减负与为基层赋能是反复考点；防止责任甩锅与痕迹主义。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述基层减负与为基层赋能的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把基层减负与为基层赋能融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“基层减负与为基层赋能”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb9"
-  },
-  {
-   "domain": "机关实务",
-   "name": "信访工作法治化",
-   "freq": "中",
-   "note": "预防、受理、办理、监督追责法治化",
-   "exp": "【概念内涵】信访工作法治化：机关运转的规矩与本领，直接对应实务处理题的评分要点。 预防、受理、办理、监督追责法治化。\n【要点解析】把握程序规范、权责边界、协同方法与服务意识。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以实务处理、案例分析出现，重程序合规与群众视角。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：定程序、明权责、强协同、守底线。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“信访工作法治化”的基本内涵与主要内容。",
-     "a": "信访工作法治化是预防、受理、办理、监督追责法治化。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述信访工作法治化的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把信访工作法治化融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“信访工作法治化”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb10"
-  },
-  {
-   "domain": "机关实务",
-   "name": "突发事件应急处置",
-   "freq": "中",
-   "note": "防汛抗旱、舆情应对、信息报送",
-   "exp": "【概念内涵】突发事件应急处置：机关运转的规矩与本领，直接对应实务处理题的评分要点。 防汛抗旱、舆情应对、信息报送。\n【要点解析】把握程序规范、权责边界、协同方法与服务意识。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以实务处理、案例分析出现，重程序合规与群众视角。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：定程序、明权责、强协同、守底线。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“突发事件应急处置”的基本内涵与主要内容。",
-     "a": "突发事件应急处置是防汛抗旱、舆情应对、信息报送。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述突发事件应急处置的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把突发事件应急处置融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“突发事件应急处置”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb11"
-  },
-  {
-   "domain": "机关实务",
-   "name": "调查研究与群众工作",
-   "freq": "中",
-   "note": "基本功；四不两直、解剖麻雀",
-   "exp": "【概念内涵】调查研究与群众工作：机关运转的规矩与本领，直接对应实务处理题的评分要点。 基本功；四不两直、解剖麻雀。\n【要点解析】把握程序规范、权责边界、协同方法与服务意识。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以实务处理、案例分析出现，重程序合规与群众视角。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：定程序、明权责、强协同、守底线。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“调查研究与群众工作”的基本内涵与主要内容。",
-     "a": "调查研究与群众工作是基本功；四不两直、解剖麻雀。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述调查研究与群众工作的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把调查研究与群众工作融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“调查研究与群众工作”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb12"
-  },
-  {
-   "domain": "公文写作",
-   "name": "公文格式与文种选用",
-   "freq": "高",
-   "note": "15 种法定文种；格式要素",
-   "exp": "【概念内涵】公文格式与文种选用：公文是机关履职的载体，格式与文种是客观题基础分。 15 种法定文种；格式要素。\n【要点解析】掌握15种法定文种适用情形、格式要素与语气分寸。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】公文改错、写作是固定题型，采分点极细。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：看文种、查格式、调语气、扣要素。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“公文格式与文种选用”的基本内涵与主要内容。",
-     "a": "公文格式与文种选用是15 种法定文种；格式要素。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述公文格式与文种选用的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把公文格式与文种选用融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“公文格式与文种选用”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb13"
-  },
-  {
-   "domain": "公文写作",
-   "name": "讲话稿与汇报材料写作",
-   "freq": "高",
-   "note": "主观题常客；结构、语气、站位",
-   "exp": "【概念内涵】讲话稿与汇报材料写作：公文是机关履职的载体，格式与文种是客观题基础分。 主观题常客；结构、语气、站位。\n【要点解析】掌握15种法定文种适用情形、格式要素与语气分寸。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】公文改错、写作是固定题型，采分点极细。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：看文种、查格式、调语气、扣要素。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“讲话稿与汇报材料写作”的基本内涵与主要内容。",
-     "a": "讲话稿与汇报材料写作是主观题常客；结构、语气、站位。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述讲话稿与汇报材料写作的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把讲话稿与汇报材料写作融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“讲话稿与汇报材料写作”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb14"
-  },
-  {
-   "domain": "公文写作",
-   "name": "通知、通报、函",
-   "freq": "中",
-   "note": "常用文种；行文关系与语气",
-   "exp": "【概念内涵】通知、通报、函：公文是机关履职的载体，格式与文种是客观题基础分。 常用文种；行文关系与语气。\n【要点解析】掌握15种法定文种适用情形、格式要素与语气分寸。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】公文改错、写作是固定题型，采分点极细。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：看文种、查格式、调语气、扣要素。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“通知、通报、函”的基本内涵与主要内容。",
-     "a": "通知、通报、函是常用文种；行文关系与语气。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述通知、通报、函的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把通知、通报、函融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“通知、通报、函”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb15"
-  },
-  {
-   "domain": "公文写作",
-   "name": "策论文写作框架",
-   "freq": "高",
-   "note": "40 分大题；总-分-总 + 对策落地",
-   "exp": "【概念内涵】策论文写作框架：公文是机关履职的载体，格式与文种是客观题基础分。 40 分大题；总-分-总 + 对策落地。\n【要点解析】掌握15种法定文种适用情形、格式要素与语气分寸。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】公文改错、写作是固定题型，采分点极细。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：看文种、查格式、调语气、扣要素。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“策论文写作框架”的基本内涵与主要内容。",
-     "a": "策论文写作框架是40 分大题；总-分-总 + 对策落地。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述策论文写作框架的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把策论文写作框架融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“策论文写作框架”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb16"
-  },
-  {
-   "domain": "综合能力",
-   "name": "案例分析解题方法",
-   "freq": "高",
-   "note": "20 分题；定性-分层-对策",
-   "exp": "【概念内涵】案例分析解题方法：遴选考试的核心能力区，决定主客观题得分上限。 20 分题；定性-分层-对策。\n【要点解析】归纳概括要踩点、对策建议要可行、分析要分层。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】案例分析、归纳概括高频出现，按“定性-分层-对策”作答。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、分维度、给对策、用数据。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“案例分析解题方法”的基本内涵与主要内容。",
-     "a": "案例分析解题方法是20 分题；定性-分层-对策。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述案例分析解题方法的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把案例分析解题方法融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“案例分析解题方法”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb17"
-  },
-  {
-   "domain": "综合能力",
-   "name": "归纳概括与对策建议",
-   "freq": "高",
-   "note": "核心能力；踩点给分",
-   "exp": "【概念内涵】归纳概括与对策建议：遴选考试的核心能力区，决定主客观题得分上限。 核心能力；踩点给分。\n【要点解析】归纳概括要踩点、对策建议要可行、分析要分层。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】案例分析、归纳概括高频出现，按“定性-分层-对策”作答。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、分维度、给对策、用数据。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“归纳概括与对策建议”的基本内涵与主要内容。",
-     "a": "归纳概括与对策建议是核心能力；踩点给分。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述归纳概括与对策建议的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把归纳概括与对策建议融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“归纳概括与对策建议”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb18"
-  },
-  {
-   "domain": "综合能力",
-   "name": "机关实务处理流程",
-   "freq": "中",
-   "note": "实务题；程序规范与协调",
-   "exp": "【概念内涵】机关实务处理流程：遴选考试的核心能力区，决定主客观题得分上限。 实务题；程序规范与协调。\n【要点解析】归纳概括要踩点、对策建议要可行、分析要分层。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】案例分析、归纳概括高频出现，按“定性-分层-对策”作答。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：先定性、分维度、给对策、用数据。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“机关实务处理流程”的基本内涵与主要内容。",
-     "a": "机关实务处理流程是实务题；程序规范与协调。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述机关实务处理流程的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把机关实务处理流程融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“机关实务处理流程”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb19"
-  },
-  {
-   "domain": "基层治理",
-   "name": "共同缔造与基层治理",
-   "freq": "高",
-   "note": "湖北品牌；共建共治共享",
-   "exp": "【概念内涵】共同缔造与基层治理：湖北“共同缔造”品牌所在，是基层治理题的本土抓手。 湖北品牌；共建共治共享。\n【要点解析】把握共建共治共享与“五共”方法论、党建引领。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以案例分析、策论出现，强调发动群众内生动力。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：共谋建管评享、党建来领航。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“共同缔造与基层治理”的基本内涵与主要内容。",
-     "a": "共同缔造与基层治理是湖北品牌；共建共治共享。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述共同缔造与基层治理的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把共同缔造与基层治理融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“共同缔造与基层治理”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb20"
-  },
-  {
-   "domain": "基层治理",
-   "name": "“五共”方法论",
-   "freq": "中",
-   "note": "共谋共建共管共评共享",
-   "exp": "【概念内涵】“五共”方法论：湖北“共同缔造”品牌所在，是基层治理题的本土抓手。 共谋共建共管共评共享。\n【要点解析】把握共建共治共享与“五共”方法论、党建引领。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以案例分析、策论出现，强调发动群众内生动力。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：共谋建管评享、党建来领航。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述““五共”方法论”的基本内涵与主要内容。",
-     "a": "“五共”方法论是共谋共建共管共评共享。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述“五共”方法论的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把“五共”方法论融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进““五共”方法论”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb21"
-  },
-  {
-   "domain": "基层治理",
-   "name": "党建引领基层治理",
-   "freq": "中",
-   "note": "红色引擎；组织体系",
-   "exp": "【概念内涵】党建引领基层治理：湖北“共同缔造”品牌所在，是基层治理题的本土抓手。 红色引擎；组织体系。\n【要点解析】把握共建共治共享与“五共”方法论、党建引领。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以案例分析、策论出现，强调发动群众内生动力。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：共谋建管评享、党建来领航。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“党建引领基层治理”的基本内涵与主要内容。",
-     "a": "党建引领基层治理是红色引擎；组织体系。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述党建引领基层治理的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把党建引领基层治理融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“党建引领基层治理”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb22"
-  },
-  {
-   "domain": "热点专题",
-   "name": "科技创新成果转化",
-   "freq": "高",
-   "note": "新质生产力；产学研协同",
-   "exp": "【概念内涵】科技创新成果转化：新质生产力与人才强省等年度热词，常作策论论据。 新质生产力；产学研协同。\n【要点解析】把握概念内涵、现实问题与系统对策。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、论述出现，需四端协同的体系化作答。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：概念清、问题明、对策全、案例真。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“科技创新成果转化”的基本内涵与主要内容。",
-     "a": "科技创新成果转化是新质生产力；产学研协同。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述科技创新成果转化的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把科技创新成果转化融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“科技创新成果转化”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb23"
-  },
-  {
-   "domain": "热点专题",
-   "name": "人才强省与引育留用",
-   "freq": "中",
-   "note": "第一资源；全链条生态",
-   "exp": "【概念内涵】人才强省与引育留用：新质生产力与人才强省等年度热词，常作策论论据。 第一资源；全链条生态。\n【要点解析】把握概念内涵、现实问题与系统对策。具体落实时，要把中央精神与湖北实际结合，避免空对空。\n【命题视角】常以策论、论述出现，需四端协同的体系化作答。作答须体现政治站位与机关思维。\n【记忆提示】记忆口诀：概念清、问题明、对策全、案例真。",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述“人才强省与引育留用”的基本内涵与主要内容。",
-     "a": "人才强省与引育留用是第一资源；全链条生态。把握其时代背景与核心要义，从立场、观点、方法三层理解，并联系实际工作展开。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北“支点建设”实际，论述人才强省与引育留用的意义与实践路径。",
-     "a": "意义：为先行区建设提供方向与方法指引。路径：对标2026报告目标，把人才强省与引育留用融入改革发展具体任务；健全考核激励，纠治形式主义；以民生实事检验成效。"
-    },
-    {
-     "type": "案例",
-     "q": "某机关拟推进“人才强省与引育留用”相关工作，请列实施要点。",
-     "a": "①制定方案明确目标；②专题学习统一认识；③试点先行总结经验；④建章立制长效推进；⑤防范形式主义走过场。"
-    }
-   ],
-   "id": "kb24"
-  }
- ],
- "papers": [
-  {
-   "id": "real2025",
-   "title": "2025年度湖北省直遴选综合知识测试",
-   "group": "真题",
-   "year": 2025,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "公文改错",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "实务处理",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "考生回忆版（2025.10.18），官方不公布真题"
-  },
-  {
-   "id": "real2024",
-   "title": "2024年度湖北省直遴选综合知识测试",
-   "group": "真题",
-   "year": 2024,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "公文改错",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "实务处理",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "考生回忆版（2024.10.19）"
-  },
-  {
-   "id": "real2023",
-   "title": "2023年度湖北省直遴选综合知识测试",
-   "group": "真题",
-   "year": 2023,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "公文改错",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "实务处理",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "考生回忆版（2024.3.2 考）"
-  },
-  {
-   "id": "m0704",
-   "title": "公选王2026湖北市州直模考0704",
-   "group": "模考",
-   "year": 2026,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "公文写作",
-     "count": 1,
-     "score": 20
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "借调清退/一事一议/水经济主题"
-  },
-  {
-   "id": "m0711",
-   "title": "公选王2026湖北市州直模考0711",
-   "group": "模考",
-   "year": 2026,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "公文写作",
-     "count": 1,
-     "score": 20
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "党建/就业/人形机器人主题"
-  },
-  {
-   "id": "m0718",
-   "title": "公选王2026湖北市州直模考0718",
-   "group": "模考",
-   "year": 2026,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "公文写作",
-     "count": 1,
-     "score": 20
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "援疆/统计造假/西十高铁主题"
-  },
-  {
-   "id": "sim13",
-   "title": "AI原创全真模拟 S13（政绩观·消费·文旅）",
-   "group": "原创",
-   "year": 2026,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "公文写作",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "实务处理",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "正确政绩观学习教育+促消费+文旅流量转化"
-  },
-  {
-   "id": "sim14",
-   "title": "AI原创全真模拟 S14（绿色·科创·人才）",
-   "group": "原创",
-   "year": 2026,
-   "duration": 180,
-   "total": 100,
-   "qTypes": [
-    {
-     "type": "公文写作",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "实务处理",
-     "count": 1,
-     "score": 10
-    },
-    {
-     "type": "案例分析",
-     "count": 2,
-     "score": 40
-    },
-    {
-     "type": "策论写作",
-     "count": 1,
-     "score": 40
-    }
-   ],
-   "note": "科创转化+人才引进+绿色转型+教科人一体化"
-  }
- ],
- "wrong": [
-  {
-   "id": "w1",
-   "qTitle": "公文改错：请示与报告混用",
-   "type": "公文改错",
-   "domain": "公文写作",
-   "myAnswer": "未指出文种错误",
-   "correct": "应分别行文，请示一文一事、报告不夹带请示事项",
-   "wrongTimes": 3,
-   "lastDate": "2026-08-09",
-   "status": "待巩固"
-  },
-  {
-   "id": "w2",
-   "qTitle": "案例分析：借调人员清退程序",
-   "type": "案例分析",
-   "domain": "机关实务",
-   "myAnswer": "遗漏告知与申诉环节",
-   "correct": "应书面通知、说明理由、保障申诉权并妥善安置",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-08",
-   "status": "待巩固"
-  },
-  {
-   "id": "w3",
-   "qTitle": "策论：政绩观论证",
-   "type": "策论写作",
-   "domain": "政治理论",
-   "myAnswer": "空谈概念无湖北案例",
-   "correct": "须结合湖北支点建设与民生实事展开",
-   "wrongTimes": 4,
-   "lastDate": "2026-08-10",
-   "status": "待巩固"
-  },
-  {
-   "id": "w4",
-   "qTitle": "实务：突发事件信息报送",
-   "type": "实务处理",
-   "domain": "机关实务",
-   "myAnswer": "报送层级错误",
-   "correct": "首报要情、续报进展、终报结果，限时直报",
-   "wrongTimes": 1,
-   "lastDate": "2026-08-07",
-   "status": "已掌握"
-  },
-  {
-   "id": "w5",
-   "qTitle": "归纳概括：材料要点遗漏",
-   "type": "归纳概括",
-   "domain": "综合能力",
-   "myAnswer": "漏掉监管维度",
-   "correct": "主体+问题+原因+对策四维归纳",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-09",
-   "status": "待巩固"
-  },
-  {
-   "id": "w6",
-   "qTitle": "公文：通知要素缺失",
-   "type": "公文写作",
-   "domain": "公文写作",
-   "myAnswer": "缺主送机关",
-   "correct": "通知须有标题、主送、正文、落款、日期",
-   "wrongTimes": 1,
-   "lastDate": "2026-08-06",
-   "status": "已掌握"
-  },
-  {
-   "id": "w7",
-   "qTitle": "案例：基层减负抓手",
-   "type": "案例分析",
-   "domain": "基层治理",
-   "myAnswer": "只谈减表",
-   "correct": "减文山会海+规范考核+赋能放权综合施策",
-   "wrongTimes": 3,
-   "lastDate": "2026-08-10",
-   "status": "待巩固"
-  },
-  {
-   "id": "w8",
-   "qTitle": "策论：文旅出圈路径",
-   "type": "策论写作",
-   "domain": "省情热点",
-   "myAnswer": "缺IP与业态",
-   "correct": "文化IP+场景业态+服务口碑+流量转化",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-08",
-   "status": "待巩固"
-  },
-  {
-   "id": "w9",
-   "qTitle": "实务：信访受理范围",
-   "type": "实务处理",
-   "domain": "机关实务",
-   "myAnswer": "越权受理",
-   "correct": "依法分类处理，诉访分离",
-   "wrongTimes": 1,
-   "lastDate": "2026-08-05",
-   "status": "已掌握"
-  },
-  {
-   "id": "w10",
-   "qTitle": "案例：共同缔造发动群众",
-   "type": "案例分析",
-   "domain": "基层治理",
-   "myAnswer": "政府大包大揽",
-   "correct": "共谋共建，激发内生动力",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-09",
-   "status": "待巩固"
-  },
-  {
-   "id": "w11",
-   "qTitle": "归纳：数据佐证不足",
-   "type": "归纳概括",
-   "domain": "综合能力",
-   "myAnswer": "无数据支撑",
-   "correct": "用湖北2026报告数据增强说服力",
-   "wrongTimes": 1,
-   "lastDate": "2026-08-07",
-   "status": "已掌握"
-  },
-  {
-   "id": "w12",
-   "qTitle": "公文：函的语气",
-   "type": "公文写作",
-   "domain": "公文写作",
-   "myAnswer": "语气命令化",
-   "correct": "函为平行文，商洽语气、平和得体",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-10",
-   "status": "待巩固"
-  },
-  {
-   "id": "w13",
-   "qTitle": "策论：科创转化对策",
-   "type": "策论写作",
-   "domain": "热点专题",
-   "myAnswer": "只写研发",
-   "correct": "供给端+平台端+需求端+生态端四端协同",
-   "wrongTimes": 3,
-   "lastDate": "2026-08-10",
-   "status": "待巩固"
-  },
-  {
-   "id": "w14",
-   "qTitle": "案例：人才留用",
-   "type": "案例分析",
-   "domain": "热点专题",
-   "myAnswer": "重引进轻服务",
-   "correct": "事业平台+服务保障+情感认同并重",
-   "wrongTimes": 1,
-   "lastDate": "2026-08-06",
-   "status": "已掌握"
-  },
-  {
-   "id": "w15",
-   "qTitle": "实务：调研方法",
-   "type": "实务处理",
-   "domain": "机关实务",
-   "myAnswer": "仅座谈",
-   "correct": "四不两直+随机走访+数据交叉验证",
-   "wrongTimes": 2,
-   "lastDate": "2026-08-09",
-   "status": "待巩固"
-  }
- ],
- "cards": [
-  {
-   "front": "正确政绩观的核心",
-   "back": "功成不必在我、功成必定有我；既要做显功也要做潜功",
-   "level": 2,
-   "due": 1,
-   "reviewed": 5
-  },
-  {
-   "front": "“两个确立”内容",
-   "back": "确立习近平同志党中央核心、全党的核心地位；确立习近平新时代中国特色社会主义思想的指导地位",
-   "level": 3,
-   "due": 3,
-   "reviewed": 8
-  },
-  {
-   "front": "湖北支点战略定位",
-   "back": "努力建设全国构建新发展格局先行区，打造重要战略支点",
-   "level": 1,
-   "due": 0,
-   "reviewed": 2
-  },
-  {
-   "front": "公文15种法定文种(列举5)",
-   "back": "决议、决定、命令、公报、公告、通告、意见、通知、通报、报告、请示、批复、议案、函、纪要",
-   "level": 2,
-   "due": 2,
-   "reviewed": 4
-  },
-  {
-   "front": "策论文基本框架",
-   "back": "总（点题立论）—分（分层对策，每段观点句+阐释+案例）—总（升华结尾）",
-   "level": 1,
-   "due": 0,
-   "reviewed": 1
-  },
-  {
-   "front": "共同缔造“五共”",
-   "back": "共谋、共建、共管、共评、共享",
-   "level": 3,
-   "due": 5,
-   "reviewed": 9
-  },
-  {
-   "front": "新质生产力定义",
-   "back": "由技术革命性突破、生产要素创新性配置、产业深度转型升级催生",
-   "level": 2,
-   "due": 1,
-   "reviewed": 3
-  },
-  {
-   "front": "枫桥经验核心",
-   "back": "小事不出村、大事不出镇、矛盾不上交，就地化解",
-   "level": 2,
-   "due": 2,
-   "reviewed": 6
-  },
-  {
-   "front": "2026湖北GDP目标",
-   "back": "经济总量跨越6万亿元，增长目标约5.5%",
-   "level": 1,
-   "due": 0,
-   "reviewed": 2
-  },
-  {
-   "front": "基层减负关键",
-   "back": "规范督查检查考核、整治形式主义、防止责任甩锅",
-   "level": 2,
-   "due": 3,
-   "reviewed": 4
-  },
-  {
-   "front": "信访法治化路径",
-   "back": "预防法治化、受理法治化、办理法治化、监督追责法治化、维护秩序法治化",
-   "level": 1,
-   "due": 0,
-   "reviewed": 1
-  },
-  {
-   "front": "深化改革总目标",
-   "back": "完善和发展中国特色社会主义制度、推进国家治理体系和治理能力现代化",
-   "level": 3,
-   "due": 4,
-   "reviewed": 7
-  },
-  {
-   "front": "公文格式要素",
-   "back": "版头、主体、版记；份号、密级、发文字号、标题、主送、正文、落款",
-   "level": 2,
-   "due": 1,
-   "reviewed": 5
-  },
-  {
-   "front": "银发经济含义",
-   "back": "面向老年人消费与服务的产业总和，含康养、适老用品、老龄金融",
-   "level": 1,
-   "due": 0,
-   "reviewed": 2
-  },
-  {
-   "front": "调查研究“四不两直”",
-   "back": "不发通知、不打招呼、不听汇报、不用陪同接待，直奔基层、直插现场",
-   "level": 2,
-   "due": 2,
-   "reviewed": 3
-  },
-  {
-   "front": "党建引领基层治理",
-   "back": "把基层党组织建成坚强战斗堡垒，以组织体系贯通治理末梢",
-   "level": 1,
-   "due": 0,
-   "reviewed": 1
-  },
-  {
-   "front": "人才强省链条",
-   "back": "引才、育才、留才、用才全链条生态，事业平台+服务保障",
-   "level": 2,
-   "due": 1,
-   "reviewed": 4
-  },
-  {
-   "front": "突发事件处置原则",
-   "back": "以人为本、预防为主、分级负责、快速反应、信息公开",
-   "level": 2,
-   "due": 3,
-   "reviewed": 5
-  }
- ],
- "jin": [
-  {
-   "cat": "实干担当",
-   "text": "功成不必在我，功成必定有我",
-   "src": "习近平"
-  },
-  {
-   "cat": "实干担当",
-   "text": "大道至简，实干为要",
-   "src": "习近平"
-  },
-  {
-   "cat": "实干担当",
-   "text": "有利于百姓的事再小也要做",
-   "src": "习近平"
-  },
-  {
-   "cat": "实干担当",
-   "text": "不驰于空想、不骛于虚声",
-   "src": "习近平"
-  },
-  {
-   "cat": "实干担当",
-   "text": "钉钉子精神，一锤接着一锤敲",
-   "src": "习近平"
-  },
-  {
-   "cat": "实干担当",
-   "text": "抓铁有痕、踏石留印",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "江山就是人民，人民就是江山",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "民之所忧，我必念之；民之所盼，我必行之",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "让老百姓过上好日子是我们一切工作的出发点和落脚点",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "金杯银杯不如群众口碑",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "把心贴近人民",
-   "src": "习近平"
-  },
-  {
-   "cat": "民生情怀",
-   "text": "一件一件抓落实，一年接着一年干",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "发展是第一要务，人才是第一资源，创新是第一动力",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "抓创新就是抓发展，谋创新就是谋未来",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "新质生产力已经在实践中形成并展示出综合优势",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "在危机中育先机、于变局中开新局",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "准确识变、科学应变、主动求变",
-   "src": "习近平"
-  },
-  {
-   "cat": "发展创新",
-   "text": "把科技的命脉牢牢掌握在自己手中",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "绿水青山就是金山银山",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "共抓大保护、不搞大开发",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "生态兴则文明兴",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "人不负青山，青山定不负人",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "良好生态环境是最普惠的民生福祉",
-   "src": "习近平"
-  },
-  {
-   "cat": "生态文明",
-   "text": "山水林田湖草沙是生命共同体",
-   "src": "习近平"
-  },
-  {
-   "cat": "基层治理",
-   "text": "基层强则国家强，基层安则天下安",
-   "src": "习近平"
-  },
-  {
-   "cat": "基层治理",
-   "text": "把矛盾纠纷化解在基层、化解在萌芽状态",
-   "src": "习近平"
-  },
-  {
-   "cat": "基层治理",
-   "text": "社会治理的重心必须落到城乡社区",
-   "src": "习近平"
-  },
-  {
-   "cat": "基层治理",
-   "text": "共建共治共享的社会治理制度",
-   "src": "习近平"
-  },
-  {
-   "cat": "基层治理",
-   "text": "小事不出村、大事不出镇、矛盾不上交",
-   "src": "枫桥经验"
-  },
-  {
-   "cat": "基层治理",
-   "text": "联系服务群众最后一公里",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "打铁必须自身硬",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "全面从严治党永远在路上",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "把抓好党建作为最大的政绩",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "心中有党、心中有民、心中有责、心中有戒",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "理想信念是共产党人精神上的‘钙’",
-   "src": "习近平"
-  },
-  {
-   "cat": "党建政绩",
-   "text": "作风建设永远在路上",
-   "src": "习近平"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "努力建设全国构建新发展格局先行区",
-   "src": "湖北省委"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "打造内陆开放高地，畅通国内国际双循环",
-   "src": "湖北省政府"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "一主引领、两翼驱动、全域协同",
-   "src": "湖北区域布局"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "汉襄宜‘金三角’协同发展",
-   "src": "湖北部署"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "以武汉新城为引领的武汉都市圈",
-   "src": "湖北部署"
-  },
-  {
-   "cat": "湖北支点",
-   "text": "实施强县工程，促进农民增收",
-   "src": "湖北部署"
-  },
-  {
-   "cat": "经典用典",
-   "text": "为之于未有，治之于未乱",
-   "src": "《老子》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "致广大而尽精微",
-   "src": "《中庸》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "治国有常，而利民为本",
-   "src": "《淮南子》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "不谋全局者，不足谋一域",
-   "src": "陈澹然"
-  },
-  {
-   "cat": "经典用典",
-   "text": "善弈者谋势，善治者谋全局",
-   "src": "《管子》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "利民之事，丝发必兴；厉民之事，毫末必去",
-   "src": "《周官辨非》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "宰相必起于州部，猛将必发于卒伍",
-   "src": "《韩非子》"
-  },
-  {
-   "cat": "经典用典",
-   "text": "但愿苍生俱饱暖，不辞辛苦出山林",
-   "src": "于谦"
-  }
- ],
- "topics": [
-  {
-   "id": "t1",
-   "title": "树立和践行正确政绩观",
-   "summary": "2026 学习教育重点，贯穿笔试主观题立场",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "简述正确政绩观的基本内涵",
-     "a": "功成不必在我、功成必定有我；显绩与潜绩统一；以人民满意为根本标准。"
-    },
-    {
-     "type": "论述",
-     "q": "结合湖北实际谈落实路径",
-     "a": "把支点建设民生实事作为政绩刻度；建立高质量发展综合考核，纠治形象工程。"
-    },
-    {
-     "type": "案例",
-     "q": "机关部署政绩观学习教育如何组织实施",
-     "a": "制定方案—专题学习—对照检视—整改提升—建章立制，防止形式主义。"
-    }
-   ]
-  },
-  {
-   "id": "t2",
-   "title": "促消费与银发经济",
-   "summary": "2026 报告将大宗消费与适老消费并列部署",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "湖北促消费的主要抓手",
-     "a": "大宗消费以旧换新、文旅消费、带薪错峰休假释放需求。"
-    },
-    {
-     "type": "论述",
-     "q": "如何发展银发经济",
-     "a": "适老用品供给、康养服务、老龄金融，银发+产业双轮驱动。"
-    },
-    {
-     "type": "案例",
-     "q": "设计一项促消费活动方案",
-     "a": "主题+对象+补贴+场景+监管，突出湖北特色与可参与度。"
-    }
-   ]
-  },
-  {
-   "id": "t3",
-   "title": "世界知名文化旅游目的地",
-   "summary": "荆楚文化IP与流量转化",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "湖北文旅核心资源",
-     "a": "长江文明、荆楚文化、三国文化、生态康养。"
-    },
-    {
-     "type": "论述",
-     "q": "文旅出圈的路径",
-     "a": "文化IP打造+场景业态创新+服务口碑+流量转化闭环。"
-    },
-    {
-     "type": "案例",
-     "q": "为一景区写推介短文",
-     "a": "定位鲜明、资源可视化、体验项目、传播节奏四要素。"
-    }
-   ]
-  },
-  {
-   "id": "t4",
-   "title": "美丽中国先行区与长江大保护",
-   "summary": "流域综合治理、水质提升",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "长江大保护方针",
-     "a": "共抓大保护、不搞大开发；十年禁渔、岸线整治。"
-    },
-    {
-     "type": "论述",
-     "q": "建设美丽中国先行区的湖北担当",
-     "a": "流域综合治理、双碳、生态产品价值实现。"
-    },
-    {
-     "type": "案例",
-     "q": "流域污染事件应急处置",
-     "a": "溯源管控+应急监测+信息公开+生态修复。"
-    }
-   ]
-  },
-  {
-   "id": "t5",
-   "title": "科技创新成果转化",
-   "summary": "新质生产力与产学研协同",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "新质生产力要义",
-     "a": "技术革命性突破+要素创新配置+产业深度转型。"
-    },
-    {
-     "type": "论述",
-     "q": "促进成果转化的路径",
-     "a": "供给端研发、平台端中试、需求端首购、生态端政策。"
-    },
-    {
-     "type": "案例",
-     "q": "建成果转化平台的建议",
-     "a": "中试基地+概念验证+基金+知识产权服务一体化。"
-    }
-   ]
-  },
-  {
-   "id": "t6",
-   "title": "人才强省与引育留用",
-   "summary": "第一资源全链条生态",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "人才工作关键",
-     "a": "引才精准、育才系统、留才安心、用才尽能。"
-    },
-    {
-     "type": "论述",
-     "q": "打造人才高地的举措",
-     "a": "平台聚才、改革活才、服务留才、生态宜才。"
-    },
-    {
-     "type": "案例",
-     "q": "引才政策优化建议",
-     "a": "需求清单+绿色通道+配偶安置+子女教育配套。"
-    }
-   ]
-  },
-  {
-   "id": "t7",
-   "title": "“五位一体”总体布局",
-   "summary": "经济政治文化社会生态协调",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "五位一体内涵",
-     "a": "经济建设、政治建设、文化建设、社会建设、生态文明建设。"
-    },
-    {
-     "type": "论述",
-     "q": "湖北如何统筹推进",
-     "a": "以流域综合治理统筹四化同步，生态优先绿色发展。"
-    },
-    {
-     "type": "案例",
-     "q": "结合本地谈协调发展",
-     "a": "产业+生态+民生协同，避免单兵突进。"
-    }
-   ]
-  },
-  {
-   "id": "t8",
-   "title": "2026 湖北支点省情总览",
-   "summary": "省情总纲，贯穿全卷",
-   "qs": [
-    {
-     "type": "简答",
-     "q": "2026 湖北核心目标",
-     "a": "GDP 跨越6万亿、增长约5.5%；市市通高铁。"
-    },
-    {
-     "type": "论述",
-     "q": "支点建设的实践要求",
-     "a": "先行区定位、汉襄宜协同、内陆开放高地。"
-    },
-    {
-     "type": "案例",
-     "q": "以本省情写一段策论开头",
-     "a": "站位全国大局+湖北优势+问题导向引出论点。"
-    }
-   ]
-  }
- ],
- "plans": [
-  {
-   "id": "p1",
-   "title": "每日晨间启动（错题+背诵）",
-   "type": "每日",
-   "date": "2026-08-11",
-   "status": "进行中",
-   "items": [
-    "回顾到期错题2道",
-    "背诵卡复习3张",
-    "时政速览10分钟"
-   ]
-  },
-  {
-   "id": "p2",
-   "title": "每日晚间复盘",
-   "type": "每日",
-   "date": "2026-08-11",
-   "status": "未开始",
-   "items": [
-    "整理当日新错题",
-    "写1条金句摘抄",
-    "计划明日重点"
-   ]
-  },
-  {
-   "id": "p3",
-   "title": "本周模考训练（S13/S14）",
-   "type": "每周",
-   "date": "2026-08-10",
-   "status": "进行中",
-   "items": [
-    "限时完成1套模拟",
-    "对照采分点自评",
-    "薄弱点回炉考点库"
-   ]
-  },
-  {
-   "id": "p4",
-   "title": "本周公文写作专项",
-   "type": "每周",
-   "date": "2026-08-10",
-   "status": "进行中",
-   "items": [
-    "练通知/通报/函各1",
-    "改错训练5题",
-    "背诵格式要素"
-   ]
-  },
-  {
-   "id": "p5",
-   "title": "考点库第一轮通读",
-   "type": "每周",
-   "date": "2026-08-08",
-   "status": "已完成",
-   "items": [
-    "六大域逐点过",
-    "标记薄弱点",
-    "导出PDF"
-   ]
-  },
-  {
-   "id": "p6",
-   "title": "考前30天冲刺总案",
-   "type": "冲刺",
-   "date": "2026-09-01",
-   "status": "未开始",
-   "items": [
-    "每周2套全真模考",
-    "每日1专题三类题",
-    "错题清零+背诵卡满级"
-   ]
-  },
-  {
-   "id": "p7",
-   "title": "考前7天临门一脚",
-   "type": "冲刺",
-   "date": "2026-09-21",
-   "status": "未开始",
-   "items": [
-    "只看错题与背诵卡",
-    "金句默写",
-    "作息调整"
-   ]
-  },
-  {
-   "id": "p8",
-   "title": "省情专题周",
-   "type": "每周",
-   "date": "2026-08-12",
-   "status": "未开始",
-   "items": [
-    "8专题简答论述案例各过1遍",
-    "导出PDF打印"
-   ]
-  },
-  {
-   "id": "p9",
-   "title": "每日金句积累",
-   "type": "每日",
-   "date": "2026-08-11",
-   "status": "进行中",
-   "items": [
-    "摘抄2条并造句",
-    "归类到8大主题"
-   ]
-  },
-  {
-   "id": "p10",
-   "title": "思维导图复盘",
-   "type": "每周",
-   "date": "2026-08-09",
-   "status": "已完成",
-   "items": [
-    "导图搜索定位薄弱概念",
-    "节点导入考点库"
-   ]
-  }
- ]
-};
-
-/* ============ 工作台核心：状态/存储/工具/模态 ============ */
-const PREFIX = 'wb_hbkx_';
-const LS_KEYS = ['kb','papers','wrong','cards','jin','topics','plans'];
-const App = {};
-App.state = { current:'dashboard', page:1, sort:{}, filter:{}, selId:null, search:'' };
-
-/* localStorage 读写（统一前缀，键隔离） */
-function lsGet(k){ try{ return JSON.parse(localStorage.getItem(PREFIX+k)); }catch(e){ return null; } }
-function lsSet(k,v){ localStorage.setItem(PREFIX+k, JSON.stringify(v)); }
-function uid(p){ return p + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36); }
-
-/* 首次加载：用内置示例数据初始化 */
-App.initData = function(){
-  LS_KEYS.forEach(k=>{ if(lsGet(k)==null) lsSet(k, JSON.parse(JSON.stringify(MOCK[k]))); });
-};
-App.load = function(){ App.data = {}; LS_KEYS.forEach(k=> App.data[k] = lsGet(k) || []); };
-App.save = function(k){ lsSet(k, App.data[k]); };
-
-/* toast 反馈 */
-App.toast = function(msg, type){
-  const box = document.getElementById('toast');
-  const el = document.createElement('div');
-  el.className = 'toast-item' + (type?(' '+type):'');
-  el.textContent = msg;
-  box.appendChild(el);
-  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 1900);
-};
-
-/* 模态：打开/关闭 */
-App.openModal = function(html){
-  document.getElementById('modal').innerHTML = html;
-  document.getElementById('mask').classList.add('show');
-};
-App.closeModal = function(){ document.getElementById('mask').classList.remove('show'); };
-
-/* 删除确认 */
-App.confirm = function(msg, cb){
-  App.openModal('<h2>确认操作</h2><p style="margin:8px 0 16px;color:#64748b">'+msg+'</p>'+
-    '<div class="row" style="justify-content:flex-end"><button class="btn ghost" onclick="App.closeModal()">取消</button>'+
-    '<button class="btn danger" id="cfmOk">确定删除</button></div>');
-  document.getElementById('cfmOk').onclick = function(){ App.closeModal(); cb(); };
-};
-
-/* 左侧导航与顶栏交互 */
-App.toggleNav = function(){ document.getElementById('sidebar').classList.toggle('open'); };
-App.openUserMenu = function(){ document.getElementById('userMenu').classList.toggle('show'); };
-document.addEventListener('click', function(e){
-  const m = document.getElementById('userMenu');
-  if(m && !e.target.closest('.menu-pop') && !e.target.closest('.avatar') && !e.target.closest('.iconbtn')) m.classList.remove('show');
-});
-
-/* 导出/导入/重置/清空 */
-App.exportAll = function(){
-  const out = {}; LS_KEYS.forEach(k=> out[k]=App.data[k]);
-  const blob = new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = '湖北遴选工作台数据备份.json'; a.click();
-  App.toast('已导出全部数据', 'ok');
-};
-App.importAll = function(){ document.getElementById('fileInput').click(); };
-App.doImport = function(ev){
-  const f = ev.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = function(){
-    try{
-      const obj = JSON.parse(r.result);
-      LS_KEYS.forEach(k=>{ if(obj[k]) App.data[k]=obj[k]; });
-      LS_KEYS.forEach(k=> App.save(k));
-      App.render(); App.toast('导入恢复成功', 'ok');
-    }catch(e){ App.toast('文件格式错误', 'err'); }
-  };
-  r.readAsText(f); ev.target.value='';
-};
-App.resetDemo = function(){
-  App.confirm('将用内置示例数据覆盖当前全部数据，确定？', function(){
-    LS_KEYS.forEach(k=>{ App.data[k]=JSON.parse(JSON.stringify(MOCK[k])); App.save(k); });
-    App.render(); App.toast('已重置为示例数据', 'ok');
-  });
-};
-App.clearAll = function(){
-  App.confirm('将清空全部数据（不可恢复），确定？', function(){
-    LS_KEYS.forEach(k=>{ App.data[k]=[]; App.save(k); });
-    App.render(); App.toast('已清空全部数据');
-  });
-};
-
-/* ============ 模块配置：列定义 + 表单字段 ============ */
-const ICON = {
-  dashboard:'<path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>',
-  kb:'<path d="M4 4h13a2 2 0 012 2v14H6a2 2 0 01-2-2zM17 6h3v13a2 2 0 01-2 2"/>',
-  papers:'<path d="M6 2h9l5 5v15H6zM15 2v5h5"/><path d="M9 13h7M9 17h7"/>',
-  wrong:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 17v.5"/>',
-  cards:'<path d="M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>',
-  jin:'<path d="M7 7H4v10h3M17 7h3v10h-3M8 12h8"/>',
-  topics:'<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3zM9 3v15M15 6v15"/>',
-  plans:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'
-};
-function svg(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
-
-const MODULES = {
-  kb:{ label:'考点库', icon:ICON.kb,
-    columns:[
-      {k:'name',t:'考点',s:true},
-      {k:'domain',t:'领域',s:true},
-      {k:'freq',t:'频次',s:true,r:v=>'<span class="chip '+(v==='高'?'red':v==='中'?'gold':'gray')+'">'+v+'</span>'},
-      {k:'note',t:'要点',s:false}
-    ],
-    fields:[
-      {n:'name',l:'考点名称',req:true,ph:'如：树立和践行正确政绩观'},
-      {n:'domain',l:'所属领域',req:true,type:'select',opts:['政治理论','省情热点','机关实务','公文写作','综合能力','基层治理','热点专题']},
-      {n:'freq',l:'考查频次',req:true,type:'select',opts:['高','中','低']},
-      {n:'note',l:'要点说明',type:'textarea',ph:'核心内容概述'}
-    ],
-    detail:function(it){
-      let h='<h3 style="color:#e2a252">'+it.name+'</h3><div class="mut" style="margin-bottom:8px">'+it.domain+' · <span class="chip '+(it.freq==='高'?'red':it.freq==='中'?'gold':'gray')+'">'+it.freq+'频</span></div>';
-      if(it.exp) h+='<div class="card" style="white-space:pre-wrap;font-size:13px;line-height:1.7">'+it.exp+'</div>';
-      if(it.qs) h+='<h3 style="margin:12px 0 6px">配套题目与参考答案</h3>'+it.qs.map((q,i)=>
-        '<div class="card"><span class="chip gold">'+q.type+'</span><div style="margin:6px 0;font-weight:600">'+q.q+'</div><div style="font-size:13px;color:#334155">答：'+q.a+'</div></div>').join('');
-      return h;
-    }
-  },
-  papers:{ label:'模拟试卷', icon:ICON.papers,
-    columns:[
-      {k:'title',t:'试卷',s:true},
-      {k:'group',t:'类别',s:true,r:v=>'<span class="chip '+(v==='真题'?'gold':v==='模考'?'blue':'gray')+'">'+v+'</span>'},
-      {k:'year',t:'年份',s:true},
-      {k:'total',t:'总分',s:true,r:v=>v+'分'},
-      {k:'note',t:'说明',s:false}
-    ],
-    fields:[
-      {n:'title',l:'试卷名称',req:true,ph:'如：AI原创模拟 S15'},
-      {n:'group',l:'类别',req:true,type:'select',opts:['真题','模考','原创']},
-      {n:'year',l:'年份',req:true,type:'number',ph:'2026'},
-      {n:'duration',l:'时长(分钟)',type:'number',ph:'180'},
-      {n:'total',l:'总分',req:true,type:'number',ph:'100'},
-      {n:'note',l:'说明',type:'textarea',ph:'命题主题/来源'}
-    ],
-    detail:function(it){
-      let h='<h3 style="color:#e2a252">'+it.title+'</h3><div class="mut" style="margin:6px 0">'+it.group+' · '+it.year+' · '+it.duration+'分钟 · '+it.total+'分</div>';
-      if(it.qTypes) h+='<h3 style="margin:10px 0 6px">题型分布</h3>'+it.qTypes.map(q=>
-        '<div class="card" style="padding:10px"><b>'+q.type+'</b> <span class="chip gray">'+q.count+'题</span> <span class="chip">'+q.score+'分</span></div>').join('');
-      if(it.note) h+='<div class="mut" style="margin-top:8px">'+it.note+'</div>';
-      return h;
-    }
-  },
-  wrong:{ label:'错题本', icon:ICON.wrong,
-    columns:[
-      {k:'qTitle',t:'错题',s:true},
-      {k:'type',t:'题型',s:true},
-      {k:'domain',t:'领域',s:true},
-      {k:'wrongTimes',t:'错次',s:true,r:v=>'<b style="color:#dc2626">'+v+'</b>'},
-      {k:'status',t:'状态',s:true,r:v=>'<span class="chip '+(v==='待巩固'?'red':'green')+'">'+v+'</span>'}
-    ],
-    fields:[
-      {n:'qTitle',l:'错题标题',req:true,ph:'如：公文改错：请示与报告混用'},
-      {n:'type',l:'题型',req:true,type:'select',opts:['公文改错','案例分析','策论写作','实务处理','归纳概括']},
-      {n:'domain',l:'领域',req:true,type:'select',opts:['政治理论','省情热点','机关实务','公文写作','综合能力','基层治理','热点专题']},
-      {n:'myAnswer',l:'我的作答',type:'textarea',ph:'当时怎么答的'},
-      {n:'correct',l:'正确答案/要点',req:true,type:'textarea',ph:'标准要点'},
-      {n:'wrongTimes',l:'错误次数',type:'number',ph:'1'},
-      {n:'lastDate',l:'最近日期',type:'date'},
-      {n:'status',l:'状态',req:true,type:'select',opts:['待巩固','已掌握']}
-    ],
-    detail:function(it){
-      return '<h3 style="color:#dc2626">'+it.qTitle+'</h3>'+
-        '<div class="mut" style="margin:6px 0">'+it.type+' · '+it.domain+' · 错'+it.wrongTimes+'次 · <span class="chip '+(it.status==='待巩固'?'red':'green')+'">'+it.status+'</span></div>'+
-        (it.myAnswer?'<div class="card"><b>我的作答</b><div class="mut" style="margin-top:4px">'+it.myAnswer+'</div></div>':'')+
-        '<div class="card" style="border-color:#16a34a"><b style="color:#16a34a">标准要点</b><div style="margin-top:4px;font-size:13px">'+it.correct+'</div></div>'+
-        (it.lastDate?'<div class="mut">最近：'+it.lastDate+'</div>':'');
-    }
-  },
-  cards:{ label:'背诵卡', icon:ICON.cards,
-    columns:[
-      {k:'front',t:'正面',s:true},
-      {k:'level',t:'等级',s:true,r:v=>'<span class="chip gold">L'+v+'</span>'},
-      {k:'reviewed',t:'复习',s:true,r:v=>v+'次'},
-      {k:'due',t:'到期',s:true,r:v=>v<=0?'<span class="chip red">今天</span>':v+'天'}
-    ],
-    fields:[
-      {n:'front',l:'正面(问题)',req:true,ph:'如：正确政绩观的核心'},
-      {n:'back',l:'反面(答案)',req:true,type:'textarea',ph:'答案内容'},
-      {n:'level',l:'记忆等级',req:true,type:'number',ph:'1-5'},
-      {n:'due',l:'到期天数',type:'number',ph:'0'},
-      {n:'reviewed',l:'已复习次数',type:'number',ph:'0'}
-    ],
-    detail:function(it){
-      return '<div class="card" style="border:1px dashed #e2a252"><b style="color:#e2a252">正面</b><div style="margin:4px 0;font-size:15px">'+it.front+'</div>'+
-        '<b style="color:#2563eb">反面</b><div style="margin-top:4px;font-size:14px">'+it.back+'</div></div>'+
-        '<div class="mut">等级 L'+(it.level||1)+' · 已复习 '+(it.reviewed||0)+' 次 · 到期 '+(it.due<=0?'今天':it.due+'天')+'</div>';
-    }
-  },
-  jin:{ label:'金句库', icon:ICON.jin,
-    columns:[
-      {k:'text',t:'金句',s:true},
-      {k:'cat',t:'分类',s:true,r:v=>'<span class="chip">'+v+'</span>'},
-      {k:'src',t:'出处',s:true}
-    ],
-    fields:[
-      {n:'text',l:'金句内容',req:true,type:'textarea',ph:'如：功成不必在我，功成必定有我'},
-      {n:'cat',l:'分类',req:true,type:'select',opts:['实干担当','民生情怀','发展创新','生态文明','基层治理','党建政绩','湖北支点','经典用典','我的自定义']},
-      {n:'src',l:'出处',req:true,ph:'如：习近平 / 《老子》'}
-    ],
-    detail:function(it){
-      return '<div style="font-size:16px;color:#e2a252;line-height:1.7">“'+it.text+'”</div>'+
-        '<div class="mut" style="margin-top:8px"><span class="chip">'+it.cat+'</span><span class="chip gray">'+it.src+'</span></div>';
-    }
-  },
-  topics:{ label:'省情专题', icon:ICON.topics,
-    columns:[
-      {k:'title',t:'专题',s:true},
-      {k:'summary',t:'摘要',s:false}
-    ],
-    fields:[
-      {n:'title',l:'专题名称',req:true,ph:'如：促消费与银发经济'},
-      {n:'summary',l:'专题摘要',req:true,type:'textarea',ph:'一句话定位'},
-      {n:'qTitle',l:'新增题目题干',ph:'如：简述促消费的主要抓手'},
-      {n:'qType',l:'题目题型',type:'select',opts:['简答','论述','案例']},
-      {n:'qAnswer',l:'参考答案',type:'textarea',ph:'参考作答内容'}
-    ],
-    detail:function(it){
-      let h='<h3 style="color:#e2a252">'+it.title+'</h3><div class="mut" style="margin:6px 0">'+it.summary+'</div>';
-      if(it.qs&&it.qs.length){
-        h+='<h3 style="margin:10px 0 6px">简答 / 论述 / 案例</h3>'+it.qs.map(q=>
-          '<div class="card"><span class="chip gold">'+q.type+'</span><div style="margin:5px 0;font-weight:600">'+q.q+'</div><div style="font-size:13px;color:#334155">答：'+q.a+'</div></div>').join('');
-      }
-      return h;
-    },
-    onSave:function(item, f){
-      if(f.qTitle && f.qAnswer){
-        item.qs = item.qs || [];
-        item.qs.push({type:f.qType||'简答', q:f.qTitle, a:f.qAnswer});
-      }
-    }
-  },
-  plans:{ label:'复习计划', icon:ICON.plans,
-    columns:[
-      {k:'title',t:'计划',s:true},
-      {k:'type',t:'类型',s:true,r:v=>'<span class="chip">'+v+'</span>'},
-      {k:'date',t:'日期',s:true},
-      {k:'status',t:'状态',s:true,r:v=>'<span class="chip '+(v==='进行中'?'blue':v==='已完成'?'green':'gray')+'">'+v+'</span>'}
-    ],
-    fields:[
-      {n:'title',l:'计划名称',req:true,ph:'如：每日晨间启动'},
-      {n:'type',l:'类型',req:true,type:'select',opts:['每日','每周','冲刺']},
-      {n:'date',l:'日期',type:'date'},
-      {n:'status',l:'状态',req:true,type:'select',opts:['进行中','已完成','未开始']},
-      {n:'items',l:'清单项(每行一条)',type:'textarea',ph:'回顾到期错题\n背诵卡复习3张'}
-    ],
-    detail:function(it){
-      let h='<h3 style="color:#e2a252">'+it.title+'</h3><div class="mut" style="margin:6px 0"><span class="chip">'+it.type+'</span><span class="chip '+(it.status==='进行中'?'blue':it.status==='已完成'?'green':'gray')+'">'+it.status+'</span> '+it.date+'</div>';
-      if(it.items&&it.items.length) h+='<ul style="margin:6px 0 0 18px;font-size:13px">'+it.items.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
-      return h;
-    },
-    onSave:function(item, f){
-      if(f.items!=null && typeof f.items==='string'){ item.items = f.items.split('\n').map(s=>s.trim()).filter(Boolean); }
-    }
-  }
-};
-
-/* ============ 通用 CRUD：列表/筛选/排序/分页/表单/校验 ============ */
-const PAGE = 8;
-/* 模块专属下拉筛选 */
-const FSEL = {
-  kb:{field:'domain',label:'领域',opts:['政治理论','省情热点','机关实务','公文写作','综合能力','基层治理','热点专题']},
-  papers:{field:'group',label:'类别',opts:['真题','模考','原创']},
-  wrong:{field:'status',label:'状态',opts:['待巩固','已掌握']},
-  jin:{field:'cat',label:'分类',opts:['实干担当','民生情怀','发展创新','生态文明','基层治理','党建政绩','湖北支点','经典用典']},
-  plans:{field:'status',label:'状态',opts:['进行中','已完成','未开始']}
-};
-
-/* 渲染某个 CRUD 模块主区 */
-App.renderModule = function(key){
-  const m = MODULES[key];
-  let bar = '<div class="toolbar"><b style="font-size:16px">'+m.label+'</b>'+
-    '<input type="search" placeholder="本模块搜索…" value="'+(App.state.filter.txt||'')+'" oninput="App.setFilterTxt(this.value)">'+
-    (FSEL[key]?('<select onchange="App.setFilterSel(this.value)"><option value="">'+FSEL[key].label+'：全部</option>'+
-      FSEL[key].opts.map(o=>'<option'+(App.state.filter.sel===o?' selected':'')+'>'+o+'</option>').join('')+'</select>'):'')+
-    '<button class="btn gold" style="margin-left:auto" onclick="App.openForm(\''+key+'\')">＋ 新增</button></div>';
-  document.getElementById('main').innerHTML = bar + '<div id="listWrap"></div>';
-  App.renderList(key);
-};
-
-/* 列表：筛选 + 排序 + 分页 */
-App.renderList = function(key){
-  const m = MODULES[key];
-  let rows = App.data[key].slice();
-  const ft = (App.state.filter.txt||'').trim().toLowerCase();
-  if(ft) rows = rows.filter(r=> Object.values(r).some(v=> String(v==null?'':v).toLowerCase().includes(ft)));
-  if(App.state.filter.sel) rows = rows.filter(r=> r[FSEL[key].field]===App.state.filter.sel);
-  const sk = App.state.sort.key, sd = App.state.sort.dir;
-  if(sk) rows.sort((a,b)=>{ let x=a[sk],y=b[sk]; if(x==null)x=''; if(y==null)y=''; x=String(x); y=String(y);
-    return sd==='asc'? (x>y?1:x<y?-1:0) : (x<y?1:x>y?-1:0); });
-  const total = rows.length, pages = Math.max(1, Math.ceil(total/PAGE));
-  if(App.state.page>pages) App.state.page=pages;
-  const start = (App.state.page-1)*PAGE;
-  const pageRows = rows.slice(start, start+PAGE);
-  const head = '<tr>'+m.columns.map(c=>'<th onclick="App.sortBy(\''+key+'\',\''+c.k+'\')">'+c.t+
-    (App.state.sort.key===c.k?(App.state.sort.dir==='asc'?' ▲':' ▼'):'')+'</th>').join('')+
-    '<th>操作</th></tr>';
-  const body = pageRows.length? pageRows.map(r=>{
-    const id = r.id||('row'+JSON.stringify(r).length+start);
-    let tds = m.columns.map(c=>{ let v=r[c.k]; let disp = c.r? c.r(v) : (v==null?'':v); return '<td>'+disp+'</td>'; }).join('');
-    return '<tr class="'+(App.state.selId===id?'sel':'')+'" onclick="App.sel(\''+key+'\',\''+id+'\')">'+tds+
-      '<td><span class="chip gray" style="cursor:pointer" onclick="event.stopPropagation();App.openForm(\''+key+'\',\''+id+'\')">编辑</span> '+
-      '<span class="chip red" style="cursor:pointer" onclick="event.stopPropagation();App.remove(\''+key+'\',\''+id+'\')">删除</span></td></tr>';
-  }).join('') : '<tr><td colspan="'+(m.columns.length+1)+'"><div class="empty">暂无数据，点击右上角「＋ 新增」添加</div></td></tr>';
-  let pager = '<div class="pager">共 '+total+' 条 · 第 '+App.state.page+'/'+pages+' 页 ';
-  pager += '<button '+(App.state.page<=1?'disabled':'')+' onclick="App.pageTo('+(App.state.page-1)+')">上一页</button>';
-  pager += '<button '+(App.state.page>=pages?'disabled':'')+' onclick="App.pageTo('+(App.state.page+1)+')">下一页</button></div>';
-  document.getElementById('listWrap').innerHTML = '<table class="tbl"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>'+pager;
-};
-
-App.sortBy = function(key, col){ if(App.state.sort.key===col) App.state.sort.dir = App.state.sort.dir==='asc'?'desc':'asc'; else {App.state.sort.key=col; App.state.sort.dir='asc';} App.renderList(key); };
-App.pageTo = function(p){ App.state.page=p; App.renderList(App.state.current); };
-App.setFilterTxt = function(v){ App.state.filter.txt=v; App.state.page=1; App.renderList(App.state.current); };
-App.setFilterSel = function(v){ App.state.filter.sel=v; App.state.page=1; App.renderList(App.state.current); };
-
-/* 选中行 -> 右侧详情面板 */
-App.sel = function(key, id){
-  App.state.selId = id;
-  const m = MODULES[key];
-  const item = App.data[key].find(r=> (r.id||'')===id) || {};
-  document.getElementById('panel').innerHTML = '<div class="spread" style="margin-bottom:8px"><b style="font-size:15px">详情 / 属性</b>'+
-    '<span class="chip gray">'+m.label+'</span></div>'+ (m.detail? m.detail(item) : JSON.stringify(item,null,2))+
-    '<div class="row" style="margin-top:12px"><button class="btn sm" onclick="App.openForm(\''+key+'\',\''+id+'\')">编辑</button>'+
-    '<button class="btn sm danger" onclick="App.remove(\''+key+'\',\''+id+'\')">删除</button></div>';
-  App.renderList(key);
-};
-
-/* 打开新增/编辑表单 */
-App.openForm = function(key, id){
-  const m = MODULES[key];
-  const item = id? (App.data[key].find(r=>(r.id||'')===id)||{}) : {};
-  let f = m.fields.map(fl=>{
-    let val = item[fl.n]!=null? item[fl.n] : '';
-    let ctrl;
-    if(fl.type==='textarea') ctrl = '<textarea name="'+fl.n+'" placeholder="'+(fl.ph||'')+'">'+val+'</textarea>';
-    else if(fl.type==='select') ctrl = '<select name="'+fl.n+'"><option value="">— 请选择 —</option>'+fl.opts.map(o=>'<option'+(val===o?' selected':'')+'>'+o+'</option>').join('')+'</select>';
-    else ctrl = '<input name="'+fl.n+'" type="'+(fl.type||'text')+'" value="'+val+'" placeholder="'+(fl.ph||'')+'">';
-    return '<div class="field" data-f="'+fl.n+'"><label>'+fl.l+(fl.req?'<span class="req">*</span>':'')+'</label>'+ctrl+'<div class="err">此项为必填</div></div>';
-  }).join('');
-  App.openModal('<h2>'+(id?'编辑':'新增')+m.label+'</h2><form id="frm" onsubmit="return false">'+f+'</form>'+
-    '<div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" onclick="App.closeModal()">取消</button>'+
-    '<button class="btn gold" id="saveBtn">保存</button></div>');
-  document.getElementById('saveBtn').onclick = function(){ App.saveForm(key, id); };
-};
-
-/* 表单校验：必填 + 数字/日期格式 */
-App.validateForm = function(fields){
-  let ok = true;
-  fields.forEach(fl=>{
-    const wrap = document.querySelector('#frm .field[data-f="'+fl.n+'"]');
-    if(!wrap) return;
-    const el = wrap.querySelector('input,select,textarea');
-    const v = (el.value||'').trim();
-    let bad = fl.req && !v;
-    if(!bad && v && (fl.type==='number') && isNaN(Number(v))) bad = true;
-    wrap.classList.toggle('bad', bad);
-    if(bad){ ok=false; wrap.querySelector('.err').textContent = (fl.type==='number'&&v&&isNaN(Number(v)))?'请填有效数字':(fl.l+'为必填'); }
-  });
-  return ok;
-};
-
-/* 保存：校验 -> 组装 -> upsert -> 持久化 */
-App.saveForm = function(key, id){
-  const m = MODULES[key];
-  if(!App.validateForm(m.fields)){ App.toast('请检查表单必填项', 'err'); return; }
-  const fd = {};
-  m.fields.forEach(fl=>{ const el=document.querySelector('#frm [name="'+fl.n+'"]'); let v=el.value.trim();
-    if(fl.type==='number') v = v===''?null:Number(v); fd[fl.n]=v; });
-  let item = id? (App.data[key].find(r=>(r.id||'')===id)||{}) : {id:uid(key[0])};
-  Object.assign(item, fd);
-  if(m.onSave) m.onSave(item, fd);
-  if(!id) App.data[key].unshift(item);
-  App.save(key);
-  App.closeModal();
-  App.renderList(key);
-  if(id) App.sel(key, id);
-  App.toast(id?'已更新':'已新增', 'ok');
-};
-
-/* 删除 */
-App.remove = function(key, id){
-  App.confirm('确定删除该项？删除后不可恢复。', function(){
-    App.data[key] = App.data[key].filter(r=>(r.id||'')!==id);
-    App.save(key);
-    if(App.state.selId===id){ App.state.selId=null; document.getElementById('panel').innerHTML='<div class="mut">从左侧或列表选择一项查看详情</div>'; }
-    App.renderList(key);
-    App.toast('已删除');
-  });
-};
-
-/* ============ 初始化 / 仪表盘 / 全局搜索 / 导航 ============ */
-const NAV = [
-  {k:'dashboard', label:'工作台首页', icon:ICON.dashboard},
-  {k:'kb', label:'考点库', icon:ICON.kb},
-  {k:'papers', label:'模拟试卷', icon:ICON.papers},
-  {k:'wrong', label:'错题本', icon:ICON.wrong},
-  {k:'cards', label:'背诵卡', icon:ICON.cards},
-  {k:'jin', label:'金句库', icon:ICON.jin},
-  {k:'topics', label:'省情专题', icon:ICON.topics},
-  {k:'plans', label:'复习计划', icon:ICON.plans}
-];
-
-App.renderSidebar = function(){
-  document.getElementById('sidebar').innerHTML = '<div class="nav-sec">导航</div>'+
-    NAV.map(n=>'<div class="nav-item '+(App.state.current===n.k?'active':'')+'" onclick="App.go(\''+n.k+'\')">'+svg(n.icon)+'<span>'+n.label+'</span></div>').join('');
-};
-App.go = function(key){
-  App.state.current = key; App.state.page = 1; App.state.selId = null;
-  App.state.filter = {txt:'', sel:''};
-  if(document.getElementById('sidebar')) document.getElementById('sidebar').classList.remove('open');
-  App.render();
-};
-App.render = function(){
-  App.renderSidebar();
-  if(App.state.current==='dashboard') App.renderDashboard();
-  else App.renderModule(App.state.current);
-};
-
-/* 仪表盘：统计概览 + 今日要处理 */
-App.renderDashboard = function(){
-  const d = App.data;
-  const stat = [
-    {k:'kb', t:'考点库', n:d.kb.length, c:'#e2a252'},
-    {k:'papers', t:'模拟试卷', n:d.papers.length, c:'#2563eb'},
-    {k:'wrong', t:'错题本', n:d.wrong.length, c:'#dc2626'},
-    {k:'cards', t:'背诵卡', n:d.cards.length, c:'#16a34a'},
-    {k:'jin', t:'金句库', n:d.jin.length, c:'#9333ea'},
-    {k:'topics', t:'省情专题', n:d.topics.length, c:'#0891b2'},
-    {k:'plans', t:'复习计划', n:d.plans.length, c:'#ea580c'}
-  ];
-  const cards = stat.map(s=>'<div class="card" style="cursor:pointer;flex:1;min-width:130px;border-top:3px solid '+s.c+'" onclick="App.go(\''+s.k+'\')">'+
-    '<div style="font-size:26px;font-weight:800;color:'+s.c+'">'+s.n+'</div><div class="mut">'+s.t+'</div></div>').join('');
-  const due = d.cards.filter(c=>(c.due||99)<=0);
-  const weak = d.wrong.filter(w=>w.status==='待巩固');
-  const daily = d.plans.filter(p=>p.type==='每日');
-  const todayHtml =
-    '<div class="card" style="border-left:4px solid #dc2626"><b style="color:#dc2626">到期背诵卡（'+due.length+'）</b>'+
-      (due.length? '<div style="margin-top:6px">'+due.slice(0,3).map(c=>'<div class="chip red" style="cursor:pointer" onclick="App.go(\'cards\')">'+c.front+'</div>').join('')+'</div>' : '<div class="mut">暂无到期，状态良好 ✓</div>')+'</div>'+
-    '<div class="card" style="border-left:4px solid #e2a252"><b style="color:#b45309">待巩固错题（'+weak.length+'）</b>'+
-      (weak.length? '<div style="margin-top:6px">'+weak.slice(0,3).map(w=>'<div class="chip gold" style="cursor:pointer" onclick="App.go(\'wrong\')">'+w.qTitle+'</div>').join('')+'</div>' : '<div class="mut">已全部掌握 ✓</div>')+'</div>'+
-    '<div class="card" style="border-left:4px solid #2563eb"><b style="color:#2563eb">今日计划（'+daily.length+'）</b>'+
-      (daily.length? '<div style="margin-top:6px">'+daily.map(p=>'<div class="chip" style="cursor:pointer" onclick="App.go(\'plans\')">'+p.title+' · '+p.status+'</div>').join('')+'</div>' : '<div class="mut">未设置</div>')+'</div>';
-  document.getElementById('main').innerHTML =
-    '<h1 style="font-size:20px;margin-bottom:4px">工作台首页</h1>'+
-    '<p class="mut" style="margin-bottom:14px">湖北遴选复习系统 · 数据存于本机浏览器 · 内置示例数据可演示完整 CRUD</p>'+
-    '<div class="row" style="gap:12px;margin-bottom:18px">'+cards+'</div>'+
-    '<h3 style="margin-bottom:8px">今日要处理</h3>'+todayHtml+
-    '<div class="card" style="margin-top:14px"><b>快速开始</b><div class="mut" style="margin-top:6px">左侧选择模块进入列表；点击任意行在右侧查看详情；右上角「＋ 新增」增数据；行内「编辑 / 删除」即时生效。顶栏可全局搜索、导出 / 导入备份。</div></div>';
-  document.getElementById('panel').innerHTML = '<div class="mut">从列表或首页选择一项，此处显示详情与属性。</div>';
-};
-
-/* 全局搜索：跨模块匹配 */
-App.search = function(q){
-  q = (q||'').trim().toLowerCase();
-  if(!q){ if(App.state.current!=='dashboard') App.go('dashboard'); return; }
-  const res = [];
-  ['kb','papers','wrong','cards','jin','topics','plans'].forEach(k=>{
-    App.data[k].forEach(r=>{
-      const hay = JSON.stringify(r).toLowerCase();
-      if(hay.includes(q)) res.push({k, item:r});
-    });
-  });
-  const groups = {};
-  res.forEach(x=>{ (groups[x.k]=groups[x.k]||[]).push(x.item); });
-  const titleMap = {kb:'考点库',papers:'模拟试卷',wrong:'错题本',cards:'背诵卡',jin:'金句库',topics:'省情专题',plans:'复习计划'};
-  let html = '<h1 style="font-size:19px;margin-bottom:4px">全局搜索：“'+q+'”</h1><p class="mut" style="margin-bottom:12px">命中 '+res.length+' 条</p>';
-  html += Object.keys(groups).map(k=>'<div class="card"><b>'+titleMap[k]+'（'+groups[k].length+'）</b>'+
-    groups[k].slice(0,6).map(it=>{ const label = it.name||it.title||it.qTitle||it.front||it.text||'(无标题)';
-      const id = it.id||''; return '<div class="chip" style="cursor:pointer;display:block;margin:6px 0" onclick="App.go(\''+k+'\');App.sel(\''+k+'\',\''+id+'\')">'+label+'</div>'; }).join('')).join('');
-  document.getElementById('main').innerHTML = html || '<div class="empty">无匹配结果</div>';
-};
-
-/* 启动 */
-App.start = function(){
-  App.initData();
-  App.load();
-  App.render();
-};
-document.addEventListener('DOMContentLoaded', App.start);
-
-</script>
-<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
-<div id="toast"></div>
-<footer style="text-align:center;color:#94a3b8;font-size:12px;padding:18px;border-top:1px solid var(--line);background:#fff">
-  湖北遴选复习工作台 · 纯前端演示版 · 数据存于本机浏览器(localStorage) · 内置示例数据可一键清空
+<footer style="text-align:center;color:var(--txt3);font-size:12px;margin-top:70px;padding-top:18px;border-top:1px solid var(--line2);">
+  湖北遴选 AI 复习系统 · 题库：近三年真题（回忆版）+ 公选王模考 + AI 原创模拟 12 套 + 金句库<br>
+  真题与参考解析来源：公选王/北辰/文开遴选整理；原创模拟为 AI 命题，供练习对照 · 数据仅存于本地浏览器
 </footer>
-<input type="file" id="fileInput" accept="application/json" style="display:none" onchange="App.doImport(event)">
+</main>
+</div>
+<script src="app.js"></script>
 </body>
 </html>
